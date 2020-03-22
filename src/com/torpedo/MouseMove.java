@@ -2,9 +2,8 @@ package com.torpedo;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
+import java.security.Key;
 
 public class MouseMove implements MouseListener, MouseMotionListener {
     private int X,Y;
@@ -33,12 +32,16 @@ public class MouseMove implements MouseListener, MouseMotionListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        GUI.clickedAt = e.getComponent();
         X = e.getX();
         Y = e.getY();
+
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        GUI.colorCells();
+        GUI.clickedAt = null;
 
     }
 
