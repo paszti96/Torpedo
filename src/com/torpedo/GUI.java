@@ -6,13 +6,23 @@ import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class GUI {
     static Component clickedAt;
     static Cell cells[];
+
     private static Component[] fleet;
+    private static Set<Cell> my_reserved_territory = new HashSet<Cell>();
+    private JFrame frame;
+    private JLayeredPane pane;
+    private Communication comm;
+
+
+    public static boolean II;
 
     public static void main(String[] args) {
         GUI g = new GUI();
@@ -40,8 +50,22 @@ public class GUI {
             for(Cell cell: s.cells)
             {
                 cell.setBackground(Color.BLUE);
+                my_reserved_territory.add(cell);
             }
         }
+    }
+
+    private void change_context(){
+        II = true;
+        for(Component c : fleet)
+            pane.remove(c);
+        fleet = null;
+
+        // Opponent my_grid
+        Grid opponent = new Grid("Opponent");
+        pane.add(opponent,FlowLayout.RIGHT);
+        frame.revalidate();
+        frame.repaint();
     }
 
     public GUI() {
@@ -49,14 +73,15 @@ public class GUI {
             @Override
             public void run() {
                 // Create and set up new window
-                JFrame frame = new JFrame("Torpedo");
+                frame = new JFrame("Torpedo");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setPreferredSize(new Dimension(900,600));
+                frame.setPreferredSize(new Dimension(880,500));
                 frame.setLayout(new FlowLayout(FlowLayout.LEFT));
                 frame.addKeyListener(new KeyAdapter() {
                     @Override
                     public void keyPressed(KeyEvent e) {
                         super.keyPressed(e);
+                        System.out.println("s");
                         if(e.getKeyCode() == KeyEvent.VK_SPACE && clickedAt!= null){
                             clickedAt.setSize(clickedAt.getHeight(),clickedAt.getWidth());
                         }
@@ -64,13 +89,16 @@ public class GUI {
                     }
                 });
 
-                // Setting up grid
-                Grid grid = new Grid();
+                // Setting up my_grid
+                Grid my_grid = new Grid("You");
 
                 // Create a pane for overlay
-                JLayeredPane pane = new JLayeredPane();
-                pane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-                pane.setPosition(frame, 0);
+                pane = new JLayeredPane();
+                pane.setLayout(new FlowLayout(FlowLayout.TRAILING));
+//                pane.setPosition(frame, 0);
+//                pane.setPreferredSize(new Dimension(820,420));
+                pane.setPreferredSize(new Dimension(838,420));
+                pane.setBorder(new MatteBorder(1,1,1,1,Color.BLACK));
 
                 // Create the fleet
                 Ship carrier = new Ship(5);
@@ -81,14 +109,47 @@ public class GUI {
 
                 fleet = new Component[]{carrier, battleship, cruiser, submarine, destroyer};
 
-                JButton b = new JButton("Start");
-                frame.add(b);
-
                 // add ships to the Panel
-                for(Component c : fleet) pane.add(c);
-                pane.add(new Grid());
+                pane.add(my_grid,FlowLayout.RIGHT);
+
+                for(Component c : fleet) pane.add(c,FlowLayout.LEFT);
+
                 frame.add(pane);
 
+
+                JButton b_join = new JButton("Join Game");
+                b_join.setFocusable(false);
+                b_join.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+//                        if(my_reserved_territory.size() == 17)
+                        {
+                            comm = new Client();
+                            new Thread(comm).start();
+                            change_context();
+//                        }else{
+                            // Todo: reset this state
+                        }
+                    }
+                });
+                frame.add(b_join,FlowLayout.LEFT);
+
+                JButton b_create = new JButton("Create Game");
+                b_create.setFocusable(false);
+                b_create.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+//                        if(my_reserved_territory.size() == 17)
+                        {
+                            comm = new Server();
+                            new Thread(comm).start();
+                            change_context();
+//                        }else{
+                            // Todo: reset this state
+                        }
+                    }
+                });
+                frame.add(b_create,FlowLayout.LEFT);
 
 
                 // add mousevent listener for the fleet
@@ -104,10 +165,13 @@ public class GUI {
 
     public class Grid extends JPanel{
         int gridnum = 10;
+        String title;
 
-        public Grid(){
-
+        public Grid(String name){
+            title = name;
             setLayout(new GridBagLayout());
+            setAlignmentX(LEFT_ALIGNMENT);
+            setBorder(new MatteBorder(1,1,1,1,Color.BLACK));
             GridBagConstraints gbc = new GridBagConstraints();
             cells = new Cell[100];
             int i_cell = 0;
@@ -115,7 +179,6 @@ public class GUI {
                 for(int col = 0; col < gridnum; col++){
                     gbc.gridx = col;
                     gbc.gridy = row;
-
                     Cell c = new Cell(col,row);
                     c.setPreferredSize(new Dimension(40,40));
                     Border border = null;
@@ -151,16 +214,41 @@ public class GUI {
 
         @Override
         public Dimension getPreferredSize() {
-            return new Dimension(600, 600);
+            return new Dimension(410, 410);
         }
 
     }
     public class Cell extends JPanel{
-        Point id;
-        boolean reserved;
+        String id;
 
         public Cell(int x, int y){
-            this.id = new Point(x,y);
+
+            this.id = String.valueOf(x) + String.valueOf(y);
+
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    super.mouseClicked(e);
+                    if (II && ((Grid) getParent()).title == "Opponent") {
+                        Container c = getParent();
+//                        if(getBackground() == Color.GREEN)
+//                        {
+//                            setBackground(null);
+//                        }else{
+                        try {
+                            System.out.println(id);
+                            comm.send(id);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+
+                         setBackground(Color.GREEN);
+
+
+//                        }
+                    }
+                }
+            });
         }
 
         @Override

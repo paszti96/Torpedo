@@ -18,6 +18,7 @@ public class Ship extends JPanel {
         setBackground(Color.RED);
         setPreferredSize(new Dimension(cell_size,size*cell_size));
         setMaximumSize(new Dimension(cell_size,size*cell_size));
+        setMinimumSize(new Dimension(cell_size,size*cell_size));
     }
 
 }

@@ -17,7 +17,9 @@ public class MouseMove implements MouseListener, MouseMotionListener {
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        e.getComponent().setLocation(e.getX() +e.getComponent().getX() - X,e.getY() +e.getComponent().getY() - Y);
+        if (!GUI.II) {
+            e.getComponent().setLocation(e.getX() + e.getComponent().getX() - X, e.getY() + e.getComponent().getY() - Y);
+        }
     }
 
     @Override
@@ -32,17 +34,26 @@ public class MouseMove implements MouseListener, MouseMotionListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        GUI.clickedAt = e.getComponent();
-        X = e.getX();
-        Y = e.getY();
-
+        if(! GUI.II) {
+            if (SwingUtilities.isLeftMouseButton(e)) {
+                GUI.clickedAt = e.getComponent();
+                X = e.getX();
+                Y = e.getY();
+            } else {
+                if (GUI.clickedAt != null)
+                    GUI.clickedAt.setSize(GUI.clickedAt.getHeight(), GUI.clickedAt.getWidth());
+            }
+        }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        GUI.colorCells();
-        GUI.clickedAt = null;
-
+        if(SwingUtilities.isLeftMouseButton(e)) {
+            if (! GUI.II) {
+                GUI.colorCells();
+                GUI.clickedAt = null;
+            }
+        }
     }
 
     @Override

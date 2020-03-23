@@ -4,19 +4,14 @@ package com.torpedo;
 import java.net.*;
 import java.io.*;
 
-public class Server
-{
-    //initialize socket and input stream
-    private Socket		 socket = null;
-    private ServerSocket server = null;
-    private DataInputStream in	 = null;
 
-    // constructor with port
-    public Server(int port)
-    {
+public class Server extends Communication implements Runnable
+{
+    private ServerSocket server = null;
+
+    public void run(){
         // starts server and waits for a connection
-        try
-        {
+        try {
             server = new ServerSocket(port);
             System.out.println("Server started");
 
@@ -29,10 +24,12 @@ public class Server
             in = new DataInputStream(
                     new BufferedInputStream(socket.getInputStream()));
 
-            String line = "";
+            // sends output to the socket
+            out = new DataOutputStream(socket.getOutputStream());
 
+            String line = "";
             // reads message from client until "Over" is sent
-            while (!line.equals("Over"))
+            while (true)
             {
                 try
                 {
@@ -45,11 +42,11 @@ public class Server
                     System.out.println(i);
                 }
             }
-            System.out.println("Closing connection");
-
-            // close connection
-            socket.close();
-            in.close();
+//            System.out.println("Closing connection");
+//
+//            // close connection
+//            socket.close();
+//            in.close();
         }
         catch(IOException i)
         {
@@ -59,6 +56,6 @@ public class Server
 
     public static void main(String args[])
     {
-        Server server = new Server(5000);
+        Server server = new Server();
     }
 }

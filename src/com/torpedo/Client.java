@@ -4,15 +4,13 @@ package com.torpedo;
 import java.net.*;
 import java.io.*;
 
-public class Client
+public class Client extends Communication implements Runnable
 {
     // initialize socket and input output streams
-    private Socket socket		 = null;
-    private DataInputStream input = null;
-    private DataOutputStream out	 = null;
 
+    private String address = "127.0.0.1";
     // constructor to put ip address and port
-    public Client(String address, int port)
+    public void run()
     {
         // establish a connection
         try
@@ -21,7 +19,7 @@ public class Client
             System.out.println("Connected");
 
             // takes input from terminal
-            input = new DataInputStream(System.in);
+            in = new DataInputStream(System.in);
 
             // sends output to the socket
             out = new DataOutputStream(socket.getOutputStream());
@@ -39,34 +37,33 @@ public class Client
         String line = "";
 
         // keep reading until "Over" is input
-        while (!line.equals("Over"))
+        while (true)
         {
             try
             {
-                line = input.readLine();
-                out.writeUTF(line);
+                line = in.readLine();
+                System.out.println(line);
             }
             catch(IOException i)
             {
                 System.out.println(i);
             }
         }
-
         // close the connection
-        try
-        {
-            input.close();
-            out.close();
-            socket.close();
-        }
-        catch(IOException i)
-        {
-            System.out.println(i);
-        }
+//        try
+//        {
+//            input.close();
+//            out.close();
+//            socket.close();
+//        }
+//        catch(IOException i)
+//        {
+//            System.out.println(i);
+//        }
     }
 
     public static void main(String args[])
     {
-        Client client = new Client("127.0.0.1", 5000);
+        Client client = new Client();
     }
 }
