@@ -27,7 +27,7 @@ public class Server extends Communication implements Runnable
             // sends output to the socket
             out = new DataOutputStream(socket.getOutputStream());
 
-            String line = "";
+           line = "";
             // reads message from client until "Over" is sent
             while (true)
             {
@@ -35,6 +35,9 @@ public class Server extends Communication implements Runnable
                 {
                     line = in.readUTF();
                     System.out.println(line);
+                    for(MsgHandler handler : msgListeners){
+                        handler.checkHit(line);
+                    }
 
                 }
                 catch(IOException i)

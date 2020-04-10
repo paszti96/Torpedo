@@ -19,11 +19,12 @@ public class Client extends Communication implements Runnable
             System.out.println("Connected");
 
             // takes input from terminal
-            in = new DataInputStream(System.in);
+            in = new DataInputStream(socket.getInputStream());
 
             // sends output to the socket
             out = new DataOutputStream(socket.getOutputStream());
         }
+
         catch(UnknownHostException u)
         {
             System.out.println(u);
@@ -34,15 +35,18 @@ public class Client extends Communication implements Runnable
         }
 
         // string to read message from input
-        String line = "";
+        line = "";
 
         // keep reading until "Over" is input
         while (true)
         {
             try
             {
-                line = in.readLine();
+                line = in.readUTF();
                 System.out.println(line);
+                for(MsgHandler handler : msgListeners){
+                    handler.checkHit(line);
+                }
             }
             catch(IOException i)
             {

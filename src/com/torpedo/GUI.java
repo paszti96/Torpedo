@@ -11,16 +11,16 @@ import java.util.List;
 import java.util.Set;
 
 
-public class GUI {
+public class GUI implements Communication.MsgHandler {
     static Component clickedAt;
-    static Cell cells[];
 
     private static Component[] fleet;
     private static Set<Cell> my_reserved_territory = new HashSet<Cell>();
     private JFrame frame;
     private JLayeredPane pane;
     private Communication comm;
-
+    private static Grid my_grid;
+    private Grid opponent;
 
     public static boolean II;
 
@@ -29,18 +29,57 @@ public class GUI {
 
     }
 
+    @Override
+    public void checkHit(String msgCome) {
+        /**Check whether hit happened**/
+
+        String parts[] = msgCome.split(":");
+        if (parts.length == 2) {
+            // acknowledgement come
+            String hit = parts[0];
+            int id = Integer.parseInt(parts[1]);
+
+            if(hit == "hit"){
+                opponent.cells[id].setBackground(Color.RED);
+            }
+
+        } else if (parts.length == 1) {
+            // torpedo come
+            String id = parts[0];
+            int i_id = Integer.parseInt(id);
+            for (Cell c : my_reserved_territory) {
+                if (c.id == msgCome) {
+                    try {
+                        my_grid.cells[i_id].setBackground(Color.RED);
+                        comm.send("hit:" + id);
+                        break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            try {
+                comm.send("miss:" + id);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            return;
+        }
+    }
+
     public static void colorCells(){
         List<Cell> new_territory = new ArrayList<>();
-        for(int i = 0; i<cells.length; i++){
-            cells[i].setBackground(null);
+        for(int i = 0; i< my_grid.cells.length; i++){
+            my_grid.cells[i].setBackground(null);
             if(
-                (((cells[i].getLocationOnScreen().x + cells[i].getWidth()/2) > clickedAt.getLocationOnScreen().x) &&
-                (cells[i].getLocationOnScreen().y + cells[i].getHeight()/2) > clickedAt.getLocationOnScreen().y) &&
-                (((cells[i].getLocationOnScreen().x) < clickedAt.getLocationOnScreen().x + clickedAt.getWidth()) &&
-                ((cells[i].getLocationOnScreen().y ) < clickedAt.getLocationOnScreen().y + clickedAt.getHeight()))
+                (((my_grid.cells[i].getLocationOnScreen().x + my_grid.cells[i].getWidth()/2) > clickedAt.getLocationOnScreen().x) &&
+                (my_grid.cells[i].getLocationOnScreen().y + my_grid.cells[i].getHeight()/2) > clickedAt.getLocationOnScreen().y) &&
+                (((my_grid.cells[i].getLocationOnScreen().x) < clickedAt.getLocationOnScreen().x + clickedAt.getWidth()) &&
+                ((my_grid.cells[i].getLocationOnScreen().y ) < clickedAt.getLocationOnScreen().y + clickedAt.getHeight()))
             ) {
 //                cells[i].setBackground(Color.blue);
-                new_territory.add(cells[i]);
+                new_territory.add(my_grid.cells[i]);
             }
         }
         ((Ship)clickedAt).cells = new_territory;
@@ -62,7 +101,7 @@ public class GUI {
         fleet = null;
 
         // Opponent my_grid
-        Grid opponent = new Grid("Opponent");
+        opponent = new Grid("Opponent");
         pane.add(opponent,FlowLayout.RIGHT);
         frame.revalidate();
         frame.repaint();
@@ -85,12 +124,11 @@ public class GUI {
                         if(e.getKeyCode() == KeyEvent.VK_SPACE && clickedAt!= null){
                             clickedAt.setSize(clickedAt.getHeight(),clickedAt.getWidth());
                         }
-
                     }
                 });
 
                 // Setting up my_grid
-                Grid my_grid = new Grid("You");
+                my_grid = new Grid("You");
 
                 // Create a pane for overlay
                 pane = new JLayeredPane();
@@ -126,6 +164,7 @@ public class GUI {
                         {
                             comm = new Client();
                             new Thread(comm).start();
+                            comm.addListener(GUI.this);
                             change_context();
 //                        }else{
                             // Todo: reset this state
@@ -142,6 +181,7 @@ public class GUI {
 //                        if(my_reserved_territory.size() == 17)
                         {
                             comm = new Server();
+                            comm.addListener(GUI.this);
                             new Thread(comm).start();
                             change_context();
 //                        }else{
@@ -163,40 +203,41 @@ public class GUI {
 
     }
 
-    public class Grid extends JPanel{
+    public class Grid extends JPanel {
         int gridnum = 10;
         String title;
+        Cell[] cells;
 
-        public Grid(String name){
+        public Grid(String name) {
             title = name;
             setLayout(new GridBagLayout());
             setAlignmentX(LEFT_ALIGNMENT);
-            setBorder(new MatteBorder(1,1,1,1,Color.BLACK));
+            setBorder(new MatteBorder(1, 1, 1, 1, Color.BLACK));
             GridBagConstraints gbc = new GridBagConstraints();
             cells = new Cell[100];
             int i_cell = 0;
-            for(int row = 0; row < gridnum; row++){
-                for(int col = 0; col < gridnum; col++){
+            for (int row = 0; row < gridnum; row++) {
+                for (int col = 0; col < gridnum; col++) {
                     gbc.gridx = col;
                     gbc.gridy = row;
-                    Cell c = new Cell(col,row);
-                    c.setPreferredSize(new Dimension(40,40));
+                    Cell c = new Cell(col, row);
+                    c.setPreferredSize(new Dimension(40, 40));
                     Border border = null;
-                    if(row < gridnum - 1){
-                        if(col < gridnum -1){
-                            border = new MatteBorder(1,1, 0,0, Color.BLACK);
-                        } else{
-                            border = new MatteBorder(1,1,0,1,Color.BLACK);
+                    if (row < gridnum - 1) {
+                        if (col < gridnum - 1) {
+                            border = new MatteBorder(1, 1, 0, 0, Color.BLACK);
+                        } else {
+                            border = new MatteBorder(1, 1, 0, 1, Color.BLACK);
                         }
-                    }else{
-                        if(col < gridnum -1){
-                            border = new MatteBorder(1,1, 1,0, Color.BLACK);
-                        } else{
-                            border = new MatteBorder(1,1,1,1,Color.BLACK);
+                    } else {
+                        if (col < gridnum - 1) {
+                            border = new MatteBorder(1, 1, 1, 0, Color.BLACK);
+                        } else {
+                            border = new MatteBorder(1, 1, 1, 1, Color.BLACK);
                         }
                     }
                     c.setBorder(border);
-                    add(c,gbc);
+                    add(c, gbc);
                     cells[i_cell] = c;
                     i_cell++;
                 }
@@ -217,11 +258,12 @@ public class GUI {
             return new Dimension(410, 410);
         }
 
+
     }
-    public class Cell extends JPanel{
+    public class Cell extends JPanel {
         String id;
 
-        public Cell(int x, int y){
+        public Cell(int x, int y) {
 
             this.id = String.valueOf(x) + String.valueOf(y);
 
@@ -231,29 +273,23 @@ public class GUI {
                     super.mouseClicked(e);
                     if (II && ((Grid) getParent()).title == "Opponent") {
                         Container c = getParent();
-//                        if(getBackground() == Color.GREEN)
-//                        {
-//                            setBackground(null);
-//                        }else{
+
                         try {
-                            System.out.println(id);
                             comm.send(id);
+                            System.out.println(id);
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
 
-                         setBackground(Color.GREEN);
-
-
-//                        }
+                        setBackground(Color.GREEN);
                     }
                 }
             });
         }
 
         @Override
-        public Dimension getPreferredSize(){
-            return new Dimension(40,40);
+        public Dimension getPreferredSize() {
+            return new Dimension(40, 40);
         }
     }
 }
