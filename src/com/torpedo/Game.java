@@ -110,7 +110,7 @@ public class Game {
         state = GameState.Connecting;
         buttons[0].setEnabled(false);
         buttons[1].setEnabled(false);
-        connected();
+        connected(); // Remove this line after network is implemented
     }
 
     public void connected() {
