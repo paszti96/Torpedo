@@ -71,4 +71,8 @@ public class Cell extends JPanel {
     public boolean destroyed() {
         return status == CellStatus.Destroyed;
     }
+
+    public boolean destroyable() {
+        return status != CellStatus.Destroyed && status != CellStatus.Missed;
+    }
 }

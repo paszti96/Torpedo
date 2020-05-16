@@ -172,7 +172,7 @@ public class Game {
     }
 
     public void fireOn(Cell cell) {
-        if (state == GameState.Play) {
+        if (state == GameState.Play && cell.destroyable()) {
             state = GameState.Wait;
             comm.fire(cell.x, cell.y);
         }
