@@ -155,6 +155,7 @@ public class Game {
 
         if (allDestroyed) {
             state = GameState.Lost;
+            finished();
             return;
         }
 
@@ -168,6 +169,7 @@ public class Game {
         }
         if (allDestroyed) {
             state = GameState.Won;
+            finished();
         }
     }
 
@@ -176,6 +178,10 @@ public class Game {
             state = GameState.Wait;
             comm.fire(cell.x, cell.y);
         }
+    }
+
+    private void finished() {
+        System.out.println(state);
     }
 }
 
