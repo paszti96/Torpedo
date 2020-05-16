@@ -1,25 +1,24 @@
 package com.torpedo;
 
 import javax.swing.*;
+//import java.awt.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.security.Key;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MouseMove implements MouseListener, MouseMotionListener {
-    private int X,Y;
+public class MouseMove implements MouseListener, MouseMotionListener, KeyListener {
+    private int X, Y;
+    private Ship ship;
 
-    public MouseMove(Component... panels){
-        for(Component panel: panels){
-            panel.addMouseListener(this);
-            panel.addMouseMotionListener(this);
-        }
+    public MouseMove(Ship ship) {
+        this.ship = ship;
+        ship.addMouseListener(this);
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        if (!GUI.II) {
-            e.getComponent().setLocation(e.getX() + e.getComponent().getX() - X, e.getY() + e.getComponent().getY() - Y);
-        }
+        ship.updatePosition(e.getX() + e.getComponent().getX() - X, e.getY() + e.getComponent().getY() - Y);
     }
 
     @Override
@@ -34,26 +33,29 @@ public class MouseMove implements MouseListener, MouseMotionListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if(! GUI.II) {
-            if (SwingUtilities.isLeftMouseButton(e)) {
-                GUI.clickedAt = e.getComponent();
-                X = e.getX();
-                Y = e.getY();
-            } else {
-                if (GUI.clickedAt != null)
-                    GUI.clickedAt.setSize(GUI.clickedAt.getHeight(), GUI.clickedAt.getWidth());
-            }
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            X = e.getX();
+            Y = e.getY();
+            ship.game.frame.addKeyListener(this);
+            ship.addMouseMotionListener(this);
+        } else {
+            ship.rotate();
         }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        if(SwingUtilities.isLeftMouseButton(e)) {
-            if (! GUI.II) {
-                GUI.colorCells();
-                GUI.clickedAt = null;
-            }
+        if (!SwingUtilities.isLeftMouseButton(e)) {
+            return;
         }
+
+        if (ship.placeable) {
+            ship.place();
+            ship.removeMouseListener(this);
+        }
+
+        ship.removeMouseMotionListener(this);
+        ship.game.frame.removeKeyListener(this);
     }
 
     @Override
@@ -63,6 +65,23 @@ public class MouseMove implements MouseListener, MouseMotionListener {
 
     @Override
     public void mouseExited(MouseEvent e) {
+
+    }
+
+    @Override
+    public void keyTyped(KeyEvent keyEvent) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+            ship.rotate();
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent keyEvent) {
 
     }
 }

@@ -7,6 +7,14 @@ import java.io.*;
 
 public class Server extends Communication implements Runnable
 {
+    private Game game;
+
+    public Server(Game game){
+        super(game);
+
+        this.game = game;
+    }
+
     private ServerSocket server = null;
 
     public void run(){
@@ -18,6 +26,9 @@ public class Server extends Communication implements Runnable
             System.out.println("Waiting for a client ...");
 
             socket = server.accept();
+
+            game.connected();
+
             System.out.println("Client accepted");
 
             // takes input from the client socket
@@ -55,10 +66,5 @@ public class Server extends Communication implements Runnable
         {
             System.out.println(i);
         }
-    }
-
-    public static void main(String args[])
-    {
-        Server server = new Server();
     }
 }

@@ -13,6 +13,11 @@ public abstract class Communication implements Runnable{
     protected int port = 5000;
     protected List<MsgHandler> msgListeners = new ArrayList<>();
     public String line = "";
+    private Game game;
+
+    public Communication(Game game){
+        this.game = game;
+    }
 
     public void send(String msg) throws Exception{
         out.writeUTF(msg);
@@ -20,6 +25,14 @@ public abstract class Communication implements Runnable{
 
     public void addListener(MsgHandler addThis){
         msgListeners.add(addThis);
+    }
+
+    public void fire(int x, int y){
+        game.checkHit(x,y);
+    }
+
+    public void fireResult(int x, int y, boolean hit, boolean destroyed, boolean allDestroyed){
+        game.fireResult(x, y, hit, destroyed, allDestroyed);
     }
 
     interface MsgHandler{

@@ -6,10 +6,15 @@ import java.io.*;
 
 public class Client extends Communication implements Runnable
 {
-    // initialize socket and input output streams
+    private Game game;
+    private String address;
 
-    private String address = "127.0.0.1";
-    // constructor to put ip address and port
+    public Client(Game game, String address){
+        super(game);
+        this.game = game;
+        this.address = address;
+    }
+
     public void run()
     {
         // establish a connection
@@ -17,6 +22,9 @@ public class Client extends Communication implements Runnable
         {
             socket = new Socket(address, port);
             System.out.println("Connected");
+
+            game.connected();
+
 
             // takes input from terminal
             in = new DataInputStream(socket.getInputStream());
@@ -64,10 +72,5 @@ public class Client extends Communication implements Runnable
 //        {
 //            System.out.println(i);
 //        }
-    }
-
-    public static void main(String args[])
-    {
-        Client client = new Client();
     }
 }
