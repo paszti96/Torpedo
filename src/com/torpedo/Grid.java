@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Grid extends JPanel {
-    int gridnum = 10;
     String title;
     Cell[] cells;
 
@@ -17,20 +16,14 @@ public class Grid extends JPanel {
         setAlignmentX(LEFT_ALIGNMENT);
         setBorder(new MatteBorder(1, 1, 1, 1, Color.BLACK));
         GridBagConstraints gbc = new GridBagConstraints();
-        cells = new Cell[gridnum * gridnum];
-        int i_cell = 0;
-        for (int row = 0; row < gridnum; row++) {
-            for (int col = 0; col < gridnum; col++) {
-                gbc.gridx = col;
-                gbc.gridy = row;
-                Cell c = new Cell(game, col, row);
-                c.setPreferredSize(new Dimension(40, 40));
-                c.setBorder(new MatteBorder(1, 1, (row < gridnum - 1) ? 0 : 1, (col < gridnum - 1) ? 0 : 1, Color.BLACK));
-                add(c, gbc);
-                cells[i_cell] = c;
-                i_cell++;
-            }
+        cells = new Cell[100];
+        for (int i = 0; i < 100; ++i) {
+            gbc.gridx = i % 10;
+            gbc.gridy = i / 10;
+            cells[i] = new Cell(game, gbc);
+            add(cells[i], gbc);
         }
+
     }
 
     public Cell get(int x, int y) {
@@ -73,6 +66,4 @@ public class Grid extends JPanel {
     public Dimension getPreferredSize() {
         return new Dimension(410, 410);
     }
-
-
 }

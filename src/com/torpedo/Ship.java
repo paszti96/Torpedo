@@ -3,12 +3,10 @@ package com.torpedo;
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 
 public class Ship extends JPanel {
-    private int cell_size = 37;
     public List<Cell> cells;
     public boolean placeable = false;
     private int size;
@@ -19,7 +17,7 @@ public class Ship extends JPanel {
         this.size = size;
         setBorder(new MatteBorder(1, 1, 1, 1, Color.BLACK));
         setBackground(Color.RED);
-        setPreferredSize(new Dimension(cell_size, size * cell_size));
+        setPreferredSize(new Dimension(37, size * 37));
     }
 
     public void updatePosition(int x, int y) {
@@ -40,8 +38,8 @@ public class Ship extends JPanel {
         this.getParent().remove(this);
         cells.get(0).getParent().repaint();
 
-        for (Ship ship: game.ships){
-            if(ship.cells == null){
+        for (Ship ship : game.ships) {
+            if (ship.cells == null) {
                 return;
             }
         }

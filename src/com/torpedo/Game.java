@@ -149,7 +149,7 @@ public class Game {
 
         comm.fireResult(x, y, true, shipDestroyed, allDestroyed);
 
-        if(shipDestroyed){
+        if (shipDestroyed) {
             my_grid.revealAround(x, y);
         }
 

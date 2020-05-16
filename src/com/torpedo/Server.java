@@ -1,15 +1,15 @@
 package com.torpedo;
 
 // A Java program for a Server
+
 import java.net.*;
 import java.io.*;
 
 
-public class Server extends Communication implements Runnable
-{
+public class Server extends Communication implements Runnable {
     private Game game;
 
-    public Server(Game game){
+    public Server(Game game) {
         super(game);
 
         this.game = game;
@@ -17,7 +17,7 @@ public class Server extends Communication implements Runnable
 
     private ServerSocket server = null;
 
-    public void run(){
+    public void run() {
         // starts server and waits for a connection
         try {
             server = new ServerSocket(port);
@@ -38,21 +38,17 @@ public class Server extends Communication implements Runnable
             // sends output to the socket
             out = new DataOutputStream(socket.getOutputStream());
 
-           line = "";
+            line = "";
             // reads message from client until "Over" is sent
-            while (true)
-            {
-                try
-                {
+            while (true) {
+                try {
                     line = in.readUTF();
                     System.out.println(line);
-                    for(MsgHandler handler : msgListeners){
+                    for (MsgHandler handler : msgListeners) {
                         handler.checkHit(line);
                     }
 
-                }
-                catch(IOException i)
-                {
+                } catch (IOException i) {
                     System.out.println(i);
                 }
             }
@@ -61,9 +57,7 @@ public class Server extends Communication implements Runnable
 //            // close connection
 //            socket.close();
 //            in.close();
-        }
-        catch(IOException i)
-        {
+        } catch (IOException i) {
             System.out.println(i);
         }
     }

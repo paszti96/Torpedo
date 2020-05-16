@@ -1,6 +1,7 @@
 package com.torpedo;
 
 import javax.swing.*;
+import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -10,16 +11,21 @@ enum CellStatus {
 }
 
 public class Cell extends JPanel {
-    String id;
     int x;
     int y;
     CellStatus status;
 
+    public Cell(Game game, GridBagConstraints constraints) {
+        this(game, constraints.gridx, constraints.gridy);
+    }
+
     public Cell(Game game, int x, int y) {
         this.x = x;
         this.y = y;
-        this.id = String.valueOf(x) + String.valueOf(y);
         status = CellStatus.Empty;
+
+        setPreferredSize(new Dimension(40, 40));
+        setBorder(new MatteBorder(1, 1, y == 9 ? 1 : 0, x == 9 ? 1 : 0, Color.BLACK));
 
         Cell that = this;
         addMouseListener(new MouseAdapter() {
