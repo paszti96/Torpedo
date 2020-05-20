@@ -9,24 +9,25 @@ import java.io.*;
 public class Server extends Communication implements Runnable {
     private Game game;
 
-    public Server(Game game) {
+    public Server(Game game,String IP) throws Exception {
         super(game);
-
         this.game = game;
-    }
+        this.IP =InetAddress.getByName(IP);
+        this.server = new ServerSocket(port,50, this.IP);
+        }
 
+    private InetAddress IP = null;
     private ServerSocket server = null;
 
     public void run() {
         // starts server and waits for a connection
         try {
-            server = new ServerSocket(port);
-            System.out.println("Server started");
+
+            System.out.println("Server started on: " + IP + " : " + port);
 
             System.out.println("Waiting for a client ...");
 
             socket = server.accept();
-
             game.connected();
 
             System.out.println("Client accepted");

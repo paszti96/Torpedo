@@ -2,9 +2,13 @@ package com.torpedo;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
+import javax.xml.validation.Validator;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 enum GameState {
     Placement, Placed, Connecting, Play, Wait, Won, Lost
@@ -74,7 +78,25 @@ public class Game {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         {
-                            connect(new Client(game, "127.0.0.1"));
+                            boolean failed= true;
+                            String IP = "";
+                            while(failed) {
+                                 IP = JOptionPane.showInputDialog(frame,
+                                        "Give me an available, valid IP address to connect",
+                                        "IP",
+                                        JOptionPane.QUESTION_MESSAGE);
+                                try {
+                                    connect(new Client(game, IP));
+                                    failed = false;
+                                } catch (Exception a) {
+                                    failed = true;
+                                }
+                            }
+                            JOptionPane.showConfirmDialog(frame,
+                                    "Your IP:"+ IP,
+                                    "IP",
+                                    JOptionPane.PLAIN_MESSAGE);
+                            frame.setTitle("Torpedo Client: " + IP);
                         }
                     }
                 });
@@ -86,7 +108,25 @@ public class Game {
                 b_create.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        connect(new Server(game));
+                        boolean failed= true;
+                        String IP = "";
+                        while(failed){
+                            IP = JOptionPane.showInputDialog(frame,
+                                    "Give me an available, valid IP address",
+                                    "IP",
+                                    JOptionPane.QUESTION_MESSAGE);
+                            try {
+                                connect(new Server(game,IP));
+                                failed = false;
+                            } catch (Exception ex) {
+                                failed = true;
+                            }
+                        }
+                        JOptionPane.showConfirmDialog(frame,
+                                "Your IP:"+ IP,
+                                "IP",
+                                JOptionPane.PLAIN_MESSAGE);
+                        frame.setTitle("Torpedo Server: " + IP);
                     }
                 });
                 frame.add(b_create, FlowLayout.LEFT);
@@ -110,8 +150,12 @@ public class Game {
         state = GameState.Connecting;
         buttons[0].setEnabled(false);
         buttons[1].setEnabled(false);
-        //comm.addListener(Game.this);
-        connected(); // Remove this line after network is implemented
+    }
+
+    public static boolean validateIP(final String ip) {
+        String PATTERN = "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
+
+        return ip.matches(PATTERN);
     }
 
     public void connected() {
@@ -183,6 +227,7 @@ public class Game {
 
     private void finished() {
         System.out.println(state);
+        JOptionPane.showMessageDialog(frame,state);
     }
 
     public void checkHit(String msgCome) {

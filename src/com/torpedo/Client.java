@@ -9,17 +9,18 @@ public class Client extends Communication implements Runnable {
     private Game game;
     private String address;
 
-    public Client(Game game, String address) {
+    public Client(Game game, String address) throws Exception {
         super(game);
         this.game = game;
         this.address = address;
+        this.socket = new Socket(address, port);
     }
 
     public void run() {
         // establish a connection
         try {
-            socket = new Socket(address, port);
-            System.out.println("Connected");
+
+            System.out.println("Connected on "+ address + " : "+port );
 
             game.connected();
 
@@ -28,9 +29,7 @@ public class Client extends Communication implements Runnable {
 
             // sends output to the socket
             out = new DataOutputStream(socket.getOutputStream());
-        } catch (UnknownHostException u) {
-            System.out.println(u);
-        } catch (IOException i) {
+         } catch (IOException i) {
             System.out.println(i);
         }
 
