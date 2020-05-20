@@ -44,8 +44,12 @@ public class Server extends Communication implements Runnable {
                 try {
                     line = in.readUTF();
                     System.out.println(line);
-                    for (MsgHandler handler : msgListeners) {
-                        handler.checkHit(line);
+
+                    String[] message = line.split(":");
+                    if(message[0].equals("hit")) {
+                        game.checkHit(message[1]);
+                    }else {
+                        game.fireResult(message[1]);
                     }
 
                 } catch (IOException i) {

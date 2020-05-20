@@ -19,8 +19,13 @@ public abstract class Communication implements Runnable {
         this.game = game;
     }
 
-    public void send(String msg) throws Exception {
-        out.writeUTF(msg);
+    public void send(String msg){
+        try {
+            out.writeUTF(msg);
+        }catch (Exception e)
+        {
+            System.out.println("Game Disconnected");
+        }
     }
 
     public void addListener(MsgHandler addThis) {
@@ -28,11 +33,17 @@ public abstract class Communication implements Runnable {
     }
 
     public void fire(int x, int y) {
-        game.checkHit(x, y);
+        String message = "hit:"+Integer.toString(x) + ',' + Integer.toString(y);
+        send(message);
+
+
     }
 
     public void fireResult(int x, int y, boolean hit, boolean destroyed, boolean allDestroyed) {
-        game.fireResult(x, y, hit, destroyed, allDestroyed);
+        String message =
+                String.format("result:%d,%d,%b,%b,%b",x,y,hit,destroyed,allDestroyed);
+        send(message);
+        //game.fireResult(x,y,hit,destroyed,allDestroyed);
     }
 
     interface MsgHandler {

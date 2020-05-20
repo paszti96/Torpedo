@@ -110,6 +110,7 @@ public class Game {
         state = GameState.Connecting;
         buttons[0].setEnabled(false);
         buttons[1].setEnabled(false);
+        //comm.addListener(Game.this);
         connected(); // Remove this line after network is implemented
     }
 
@@ -182,6 +183,26 @@ public class Game {
 
     private void finished() {
         System.out.println(state);
+    }
+
+    public void checkHit(String msgCome) {
+            String[] parts = msgCome.split(",");
+            int x = Integer.parseInt(parts[0]);
+            int y = Integer.parseInt(parts[1]);
+            checkHit(x,y);
+    }
+
+    public void fireResult(String msg){
+        int x, y;
+        boolean hit, destroyed, allDestroyed;
+        String[] arrived = msg.split(",");
+        x = Integer.parseInt(arrived[0]);
+        y = Integer.parseInt(arrived[1]);
+        hit = Boolean.parseBoolean(arrived[2]);
+        destroyed = Boolean.parseBoolean(arrived[3]);
+        allDestroyed = Boolean.parseBoolean(arrived[4]);
+
+        fireResult(x, y, hit, destroyed, allDestroyed);
     }
 }
 
